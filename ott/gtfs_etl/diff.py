@@ -2,7 +2,7 @@ import logging
 
 from ott.utils import file_utils
 from ott.utils.cache_base import CacheBase
-from .gtfs_info import GtfsInfo
+from .info import Info
 
 
 class Diff(CacheBase):
@@ -19,8 +19,8 @@ class Diff(CacheBase):
         self.new_gtfs_zip = new_gtfs_zip
 
         # step 2: make our  stuff
-        self.old_info = GtfsInfo(self.old_gtfs_zip, "old_")
-        self.new_info = GtfsInfo(self.new_gtfs_zip, "new_")
+        self.old_info = Info(self.old_gtfs_zip, "old_")
+        self.new_info = Info(self.new_gtfs_zip, "new_")
 
     def is_different(self):
         """ compare feed_info.txt and calendar_dates.txt between two zips

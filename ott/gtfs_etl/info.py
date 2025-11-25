@@ -12,7 +12,7 @@ logging.basicConfig()
 log = logging.getLogger(__file__)
 
 
-class GtfsInfo(CacheBase):
+class Info(CacheBase):
     """ Get info on a gtfs.zip file:
          1. will unzip the two calendar plus the feed_info .txt files
          2. will read the calendar .txt files, and provide date ranges and the like
@@ -26,7 +26,7 @@ class GtfsInfo(CacheBase):
         """ note: file_prefix allows us to have old_gtfs.zip and new_gtfs.zip names to compare against either other
         """
         # import pdb; pdb.set_trace()
-        super(GtfsInfo, self).__init__(section='gtfs')
+        super(Info, self).__init__(section='gtfs')
 
         self.gtfs_path = gtfs_path
         self.dir_path = os.path.dirname(gtfs_path)
@@ -135,7 +135,7 @@ class GtfsInfo(CacheBase):
                     continue
                 gtfs_path = os.path.join(cache_dir, f['name'])
                 if os.path.exists(gtfs_path):
-                    info = GtfsInfo(gtfs_path)
+                    info = Info(gtfs_path)
                     info.name = f['name']
                     ret_val.append(info)
                 else:
@@ -285,7 +285,7 @@ class GtfsInfo(CacheBase):
         for f in cache.feeds:
             url, name = cache.get_url_filename(f)
             cache_path = os.path.join(cache.cache_dir, name)
-            info = GtfsInfo(cache_path)
+            info = Info(cache_path)
             start_date,end_date,id,version = info.get_feed_info()
 
             i = {
@@ -311,14 +311,14 @@ class GtfsInfo(CacheBase):
 
     @classmethod
     def feed_looks_valid(cls, feed_path):
-        info = GtfsInfo(feed_path)
+        info = Info(feed_path)
         return info.is_feed_valid()
 
 
 def main():
     logging.basicConfig()
     # print(GtfsInfo.cached_feeds_info_str())
-    print(GtfsInfo.feed_looks_valid('./ott/loader/gtfs/cache/TRIMET.zip'))
+    print(Info.feed_looks_valid('./ott/gtfs_etl/gtfs/cache/TRIMET.zip'))
 
 
 if __name__ == '__main__':

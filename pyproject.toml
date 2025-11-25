@@ -24,4 +24,4 @@ build-backend = "poetry.core.masonry.api"
 system-site-packages = true
 
 [tool.poetry.scripts]
-gtfs-update = "ott.gtfs_ext.x:update"
+gtfs-update = "ott.gtfs_etl.cache:main"

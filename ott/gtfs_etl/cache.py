@@ -6,7 +6,7 @@ from ott.utils import object_utils
 from ott.utils import web_utils
 from ott.utils.cache_base import CacheBase
 
-from .gtfs_info import GtfsInfo
+from .info import Info
 from .diff import Diff
 
 import logging
@@ -14,7 +14,7 @@ logging.basicConfig()
 log = logging.getLogger(__file__)
 
 
-class GtfsCache(CacheBase):
+class Cache(CacheBase):
     """
     Does a 'smart' cache of a gtfs file
          1. it will look to see if a gtfs.zip file is in the cache, and download it and put it in the cache if not
@@ -23,7 +23,7 @@ class GtfsCache(CacheBase):
     feeds = []
 
     def __init__(self):
-        super(GtfsCache, self).__init__(section='gtfs')
+        super(Cache, self).__init__(section='gtfs')
         self.feeds = gtfs_utils.get_feeds_from_config(self.config)
 
     def check_cached_feeds(self, force_update=False):
@@ -33,7 +33,7 @@ class GtfsCache(CacheBase):
         """
         updated_gtfs_names = []
         for f in self.feeds:
-            url, name = GtfsCache.get_url_filename(f)
+            url, name = Cache.get_url_filename(f)
             update = self.check_feed(url, name, force_update)
             if update:
                 updated_gtfs_names.append(name)
@@ -70,7 +70,7 @@ class GtfsCache(CacheBase):
         # step 4: test new .zip for validity and also
         if update:
             # step 4a: make sure this new .zip feed has a trips.txt, routes.txt and stops.txt file ... if not no update
-            if GtfsInfo.feed_looks_valid(tmp_path):
+            if Info.feed_looks_valid(tmp_path):
                 # step 4b: mv old file to backup then mv new file in tmp dir to cache
                 log.info("cp {} to cache {}".format(tmp_path, file_path))
                 file_utils.bkup(file_path)
@@ -96,7 +96,7 @@ class GtfsCache(CacheBase):
         :return an info object for this cached gtfs feed
         """
         cache_path = os.path.join(cls.get_cache_dir(), gtfs_zip_name)
-        ret_val = GtfsInfo(cache_path, file_prefix)
+        ret_val = Info(cache_path, file_prefix)
         return ret_val
 
     @classmethod
@@ -106,7 +106,7 @@ class GtfsCache(CacheBase):
         """
         update_cache = force_update
         try:
-            cache = GtfsCache()
+            cache = Cache()
             url, name = cache.get_url_filename(gtfs_feed)
 
             # if we aren't forcing an update, then compare for difference before updating the cache
@@ -131,7 +131,7 @@ class GtfsCache(CacheBase):
         for feed in gtfs_feeds:
             if filter and feed.get('name', 'XXX') not in filter:
                 continue
-            if GtfsCache.compare_feed_against_cache(feed, app_dir, force_update):
+            if Cache.compare_feed_against_cache(feed, app_dir, force_update):
                 update_cache = True
         return update_cache
 
@@ -146,7 +146,7 @@ class GtfsCache(CacheBase):
 
 def main():
     # import pdb; pdb.set_trace()
-    cache = GtfsCache()
+    cache = Cache()
     cache.check_cached_feeds(force_update=object_utils.is_force_update())
 
 
