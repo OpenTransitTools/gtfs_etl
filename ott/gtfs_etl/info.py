@@ -4,7 +4,6 @@ import datetime
 
 from ott.utils import file_utils
 from ott.utils import object_utils
-
 from ott.utils.cache_base import CacheBase
 
 import logging
@@ -268,13 +267,30 @@ class Info(CacheBase):
 
         return start_date, end_date
 
+    def to_dict(self, name=None, url=None):
+        start_date,end_date,id,version = self.get_feed_info()
+
+        ret_val = {
+            'path'       : self.gtfs_path,
+            'version'    : version,
+            'feed_id'    : id,
+            'start_date' : start_date,
+            'end_date'   : end_date
+        }
+        if name: ret_val['name'] = name
+        if url: ret_val['url'] = url
+        
+        return ret_val
+
     @classmethod
-    def cached_feeds_info(cls):
+    def cached_feeds_info(cls, print_path=False):
         ret_val = []
 
         # step 1: read the cache
-        from ott.loader.gtfs.gtfs_cache import GtfsCache
-        cache = GtfsCache()
+        from . import cache as gc
+        cache = gc.Cache()
+        if print_path:
+            print(f"Feeds in cache dir {cache.cache_dir}/: ")
 
         # step 2: update the cache first before getting info ???
         force_update=object_utils.is_force_update()
@@ -285,25 +301,16 @@ class Info(CacheBase):
         for f in cache.feeds:
             url, name = cache.get_url_filename(f)
             cache_path = os.path.join(cache.cache_dir, name)
-            info = Info(cache_path)
-            start_date,end_date,id,version = info.get_feed_info()
-
-            i = {
-                'name'       : name,
-                'url'        : url,
-                'version'    : version,
-                'id'         : id,
-                'start_date' : start_date,
-                'end_date'   : end_date
-            }
-            ret_val.append(i)
+            i = Info(cache_path)
+            d = i.to_dict(name, url)
+            ret_val.append(d)
 
         return ret_val
 
     @classmethod
-    def cached_feeds_info_str(cls, info_fmt="name: {name}, version: {version}, id: {id}, dates: {start_date}-{end_date}\n"):
+    def cached_feeds_info_str(cls, info_fmt="name: {name}, version: {version}, feed_id: {feed_id}, dates: {start_date}-{end_date}\n"):
         ret_val = ""
-        info = cls.cached_feeds_info()
+        info = cls.cached_feeds_info(True)
         for i in info:
             n = info_fmt.format(info_fmt, **i)
             ret_val = ret_val + n
@@ -316,9 +323,17 @@ class Info(CacheBase):
 
 
 def main():
-    logging.basicConfig()
-    # print(GtfsInfo.cached_feeds_info_str())
-    print(Info.feed_looks_valid('./ott/gtfs_etl/gtfs/cache/TRIMET.zip'))
+    try:
+        import argparse
+        parser = argparse.ArgumentParser(description="Get a GTFS feed's info.")
+        parser.add_argument("--path", "-p", help="File path to the GTFS zip.")
+        args = parser.parse_args()
+        i = Info(args.path)
+        print(i.to_dict())
+    except:
+        parser.print_help()
+        print()
+        print(Info.cached_feeds_info_str())
 
 
 if __name__ == '__main__':
