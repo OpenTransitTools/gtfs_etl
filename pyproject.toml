@@ -26,5 +26,7 @@ system-site-packages = true
 
 [tool.poetry.scripts]
 convert-fares  = "ott.gtfs_etl.convert:main"
+
 gtfs-update = "ott.gtfs_etl.cache:main"
 gtfs-info = "ott.gtfs_etl.info:main"
+gtfs-patch = "ott.gtfs_etl.patch:main"
