@@ -8,10 +8,12 @@ from ott.utils.cache_base import CacheBase
 
 from .info import Info
 from .diff import Diff
+from .convert import fares_to_v2
 
 import logging
 logging.basicConfig()
 log = logging.getLogger(__file__)
+
 
 
 class Cache(CacheBase):
@@ -25,6 +27,8 @@ class Cache(CacheBase):
     def __init__(self):
         super(Cache, self).__init__(section='gtfs')
         self.feeds = gtfs_utils.get_feeds_from_config(self.config)
+        fares_to_v2(self.feeds, self.cache_dir)
+        
 
     def check_cached_feeds(self, force_update=False):
         """
