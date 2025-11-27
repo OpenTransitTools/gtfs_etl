@@ -1,0 +1,4 @@
+fare_media_id,fare_media_name,fare_media_type
+0,Cash,0
+2,Umo Fastpass,2
+4,Virtual Umo Fastpass,4

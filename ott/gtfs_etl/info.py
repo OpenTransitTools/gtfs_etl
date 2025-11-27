@@ -7,7 +7,6 @@ from ott.utils import object_utils
 from ott.utils.cache_base import CacheBase
 
 import logging
-logging.basicConfig()
 log = logging.getLogger(__file__)
 
 

@@ -1,5 +1,4 @@
 import logging
-
 from ott.utils import file_utils
 from ott.utils.cache_base import CacheBase
 from .info import Info

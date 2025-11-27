@@ -148,22 +148,6 @@ files = [
 ]
 
 [[package]]
-name = "gtfs-fares-converter"
-version = "0.1.0"
-description = "converts GTFS fares v1 data to fares v2 data"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = []
-develop = false
-
-[package.source]
-type = "git"
-url = "https://github.com/ibi-group/gtfs-fares-converter.git"
-reference = "HEAD"
-resolved_reference = "daf97bb961a8abf3316201647bc2d326339544ef"
-
-[[package]]
 name = "idna"
 version = "3.11"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -732,4 +716,4 @@ crypto-eth-addresses = ["eth-hash[pycryptodome] (>=0.7.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "0b2a1ce696238b207b63b68f3f4fdceb881ccacc94900ef795eefaaae054df58"
+content-hash = "bb0ed6afa3d67580b0bdee31f5f88d2e92a5078837893445cd24bff3ff0640b0"

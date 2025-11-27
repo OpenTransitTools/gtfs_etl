@@ -1,0 +1,5 @@
+from_leg_group_id,to_leg_group_id,fare_product_id,transfer_count,duration_limit,duration_limit_type,fare_transfer_type
+SMART,1X,1X_ADULT_SINGLE_RIDE,,,,0
+SMART,1X,1X_DISCOUNTED_SINGLE_RIDE,,,,0
+SMART,1X,1X_YOUTH_SINGLE_RIDE,,,,0
+1X,SMART,,,,,0

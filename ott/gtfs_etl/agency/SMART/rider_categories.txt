@@ -1,0 +1,4 @@
+rider_category_id,rider_category_name,min_age,max_age,eligibility_url,is_default_fare_category
+ADULT,Adult,,,,1
+DISCOUNTED,Discounted,,,https://www.ridesmart.com/transit/page/fares,0
+YOUTH,Youth,0,18,https://www.ridesmart.com/transit/page/fares,0
