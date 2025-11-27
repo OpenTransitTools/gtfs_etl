@@ -18,4 +18,7 @@ def fix(dir_path):
     file_utils.cp_files(this_module_dir, dir_path)
 
     # step 2: add network_id to routes.txt
-    
+    #         all routes are assigned network_id = SMART, except the line 1X is assigned network_id=1X
+    routes = f"{dir_path}/routes.txt"
+    file_utils.add_column_csv(routes, "network_id", "SMART")
+    file_utils.change_value_csv(routes, "network_id", "1X", "route_short_name", "1X")
