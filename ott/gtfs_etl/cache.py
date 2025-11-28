@@ -59,7 +59,8 @@ class Cache(CacheBase):
         tmp_path = os.path.join(self.tmp_dir, file_name)
 
         # step 2b: don't keep downloading a file ... make sure the tmp file is at least 2 hours
-        if force_update or os.path.exists(tmp_path) is False or file_utils.file_age_seconds(tmp_path) > 7200:
+        if force_update or os.path.exists(tmp_path) is False or file_utils.file_age_seconds(tmp_path) > 72:#00:
+            #import pdb; pdb.set_trace()
             web_utils.wget(url, tmp_path)
             patch.fix_agency(file_path, feed.get('feed_id'))
             if feed.get('faresV1'):
@@ -122,7 +123,7 @@ class Cache(CacheBase):
         update_cache = force_update
         try:
             cache = Cache()
-            url, name = cache.get_url_filename(gtfs_feed)
+            name = cache.get_filename(gtfs_feed)
 
             # if we aren't forcing an update, then compare for difference before updating the cache
             if not force_update:
@@ -188,7 +189,7 @@ def convert():
 
 
 def main():
-    # import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     cache = Cache()
     cache.check_cached_feeds(force_update=object_utils.is_force_update())
 

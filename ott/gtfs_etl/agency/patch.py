@@ -20,7 +20,7 @@ def fix_agency(feed_path, feed_id, new_feed_path=None, file_dir=None):
         i = importlib.import_module(agency_patch)
         file_utils.unzip(feed_path, file_dir)
         i.fix(file_dir)
-        file_utils.zip(new_feed_path, file_dir)
+        file_utils.dozip(new_feed_path, file_dir)
     except ImportError:
         log.info(f"feed_id {feed_id} has no patch (e.g., {agency_patch}.py doesn't exist), which is okay since most feeds don't need a patch")
     except Exception as e:

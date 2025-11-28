@@ -5,7 +5,8 @@ from .info import Info
 
 
 class Diff(CacheBase):
-    """ Diff Two Gtfs Zip Files, looking at feed_info.txt & calendar_date.txt file to see differences between them
+    """ 
+    diff two GTFS zip files, looking at feed_info.txt & calendar_date.txt file to see differences between them
     """
     old_info = None
     new_info = None
@@ -22,8 +23,13 @@ class Diff(CacheBase):
         self.new_info = Info(self.new_gtfs_zip, "new_")
 
     def is_different(self):
-        """ compare feed_info.txt and calendar_dates.txt between two zips
         """
+        compare feed_info.txt and calendar_dates.txt between two zips
+        """
+        #import pdb; pdb.set_trace()
+        stops_diff = file_utils.diff_files(self.old_info.unzip_stops(), self.new_info.unzip_stops())
+        if stops_diff:
+            logging.info("{} stops.txt files ARE VERY different".format(self.new_gtfs_zip))
         feed_info_diff = file_utils.diff_files(self.old_info.unzip_feed_info_txt(), self.new_info.unzip_feed_info_txt())
         if feed_info_diff:
             logging.info("{} feed_info.txt files ARE VERY different".format(self.new_gtfs_zip))
@@ -33,4 +39,4 @@ class Diff(CacheBase):
         calendar_diff = file_utils.diff_files(self.old_info.unzip_calendar_txt(), self.new_info.unzip_calendar_txt())
         if calendar_diff:
             logging.info("{} calender.txt files ARE VERY different".format(self.new_gtfs_zip))
-        return feed_info_diff or calendar_diff or calendar_dates_diff
+        return stops_diff or feed_info_diff or calendar_diff or calendar_dates_diff
