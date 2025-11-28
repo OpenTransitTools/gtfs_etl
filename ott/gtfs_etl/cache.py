@@ -40,11 +40,9 @@ class Cache(CacheBase):
             if update:
                 name = self.get_filename(f)
                 updated_gtfs_names.append(name)
-        
+
         if len(updated_gtfs_names) > 0:
-            file_path = os.path.join(self.cache_dir, "update.txt")
-            c = "{}\nUpdated feeds: {}\n\n".format(date_utils.pretty_date_time(), updated_gtfs_names)
-            file_utils.prepend_file(file_path, c)
+            self.update_file(updated_gtfs_names)
 
         return updated_gtfs_names
 
@@ -91,6 +89,12 @@ class Cache(CacheBase):
                 update = False
 
         return update
+
+    def update_file(self, feeds):
+        """ append list of updated feeds to gtfs/update.txt """
+        file_path = os.path.join(self.cache_dir, "update.txt")
+        c = f"{date_utils.pretty_date_time()}\nUpdated feeds: {feeds}\n\n"
+        file_utils.prepend_file(file_path, c)
 
     def cmp_file_to_cached(self, gtfs_zip_name, cmp_dir):
         """
