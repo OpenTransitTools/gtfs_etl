@@ -59,7 +59,7 @@ class Cache(CacheBase):
         tmp_path = os.path.join(self.tmp_dir, file_name)
 
         # step 2b: don't keep downloading a file ... make sure the tmp file is at least 2 hours
-        if force_update or os.path.exists(tmp_path) is False or file_utils.file_age_seconds(tmp_path) > 72:#00:
+        if force_update or not os.path.exists(tmp_path) or file_utils.file_age_seconds(tmp_path) > 7200:
             #import pdb; pdb.set_trace()
             web_utils.wget(url, tmp_path)
             patch.fix_agency(file_path, feed.get('feed_id'))
