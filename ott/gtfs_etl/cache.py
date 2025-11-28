@@ -4,6 +4,7 @@ from ott.utils import gtfs_utils
 from ott.utils import file_utils
 from ott.utils import object_utils
 from ott.utils import web_utils
+from ott.utils import date_utils
 from ott.utils.cache_base import CacheBase
 
 from .info import Info
@@ -39,6 +40,12 @@ class Cache(CacheBase):
             if update:
                 name = self.get_filename(f)
                 updated_gtfs_names.append(name)
+        
+        if len(updated_gtfs_names) > 0:
+            file_path = os.path.join(self.cache_dir, "update.txt")
+            c = "{}\nUpdated feeds: {}\n\n".format(date_utils.pretty_date_time(), updated_gtfs_names)
+            file_utils.prepend_file(file_path, c)
+
         return updated_gtfs_names
 
     def check_feed(self, feed, force_update=False):
