@@ -8,12 +8,12 @@ from ott.utils.cache_base import CacheBase
 
 from .info import Info
 from .diff import Diff
-from .convert import fares_to_v2
+from .convert import convert_fares
+from .agency import patch
 
 import logging
 logging.basicConfig()
 log = logging.getLogger(__file__)
-
 
 
 class Cache(CacheBase):
@@ -27,8 +27,6 @@ class Cache(CacheBase):
     def __init__(self):
         super(Cache, self).__init__(section='gtfs')
         self.feeds = gtfs_utils.get_feeds_from_config(self.config)
-        fares_to_v2(self.feeds, self.cache_dir)
-        
 
     def check_cached_feeds(self, force_update=False):
         """
@@ -37,28 +35,30 @@ class Cache(CacheBase):
         """
         updated_gtfs_names = []
         for f in self.feeds:
-            url, name = Cache.get_url_filename(f)
-            update = self.check_feed(url, name, force_update)
+            update = self.check_feed(f, force_update)
             if update:
+                name = self.get_filename(f)
                 updated_gtfs_names.append(name)
         return updated_gtfs_names
 
-    def check_feed(self, url, file_name, force_update=False):
+    def check_feed(self, feed, force_update=False):
         """
         download feed from url, and check it against the cache
         if newer, then replace cached feed .zip file with new version
         """
         # step 1: file name
-        file_name = file_name
+        url, file_name = self.get_url_filename(feed)
         file_path = os.path.join(self.cache_dir, file_name)
 
         # step 2: download new gtfs file
-        url = url
         tmp_path = os.path.join(self.tmp_dir, file_name)
 
         # step 2b: don't keep downloading a file ... make sure the tmp file is at least 2 hours
-        if os.path.exists(tmp_path) is False or file_utils.file_age_seconds(tmp_path) > 7200:
+        if force_update or os.path.exists(tmp_path) is False or file_utils.file_age_seconds(tmp_path) > 7200:
             web_utils.wget(url, tmp_path)
+            patch.fix_agency(file_path, feed.get('feed_id'))
+            if feed.get('faresV1'):
+                convert_fares(tmp_path, tmp_path)
 
         # step 3: check the cache whether we should update or not
         update = force_update
@@ -140,12 +140,40 @@ class Cache(CacheBase):
         return update_cache
 
     @classmethod
-    def get_url_filename(cls, gtfs_struct):
+    def get_filename(cls, gtfs_struct):
         url  = gtfs_struct.get('url')
         name = gtfs_struct.get('name', None)
         if name is None:
             name = file_utils.get_file_name_from_url(url)
+        return name
+
+    @classmethod
+    def get_url_filename(cls, gtfs_struct):
+        url  = gtfs_struct.get('url')
+        name = cls.get_filename(gtfs_struct)
         return url, name
+
+
+def convert():
+    """
+    cmd-line app to convert a feed from FaresV1 to FaresV2
+    (not really used except to test conversion, as the cache makes this call above)
+
+    #
+    # NOTE: convert_fares() depends on https://github.com/ibi-group/gtfs-fares-converter for converting Fares V1 -> V2
+    #   I couldn't get poetry to properly recognize that package when installed as a dependency from git, with the following:
+    #   gtfs-fares-converter = {git = "https://github.com/ibi-group/gtfs-fares-converter.git"}
+    #   so I punted and simply copied Arcadis' convert.py file here via curl.
+    #
+    #   curl https://raw.githubusercontent.com/ibi-group/gtfs-fares-converter/refs/heads/main/convert.py > fares.py
+    #
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Converts a GTFS feed's Fares V1 info to Fares V2 info.")
+    parser.add_argument("input_zip", help="Path to the current GTFS zip file.")
+    parser.add_argument("output_zip", help="Path to the output zip file.")
+    args = parser.parse_args()
+    convert.convert_fares(args.input_zip, args.output_zip)
 
 
 def main():
