@@ -9,7 +9,7 @@ from ott.utils.cache_base import CacheBase
 
 from .info import Info
 from .diff import Diff
-from .convert import convert_fares
+from .fares import convert_fares
 from .agency import patch
 
 import logging
