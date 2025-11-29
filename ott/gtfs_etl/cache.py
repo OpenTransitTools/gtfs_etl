@@ -62,7 +62,8 @@ class Cache(CacheBase):
         if force_update or not os.path.exists(tmp_path) or file_utils.file_age_seconds(tmp_path) > 7200:
             #import pdb; pdb.set_trace()
             web_utils.wget(url, tmp_path)
-            patch.fix_agency(file_path, feed.get('feed_id'))
+            feed_id = self.get_feed_id(feed)
+            patch.fix_agency(tmp_path, feed_id)
             if feed.get('faresV1'):
                 convert_fares(tmp_path, tmp_path)
 
@@ -135,7 +136,7 @@ class Cache(CacheBase):
             if update_cache:
                 cache.cp_cached_file(name, app_dir)
         except Exception as e:
-            log.warn(e)
+            log.warning(e)
         return update_cache
 
     @classmethod
@@ -164,6 +165,12 @@ class Cache(CacheBase):
         url  = gtfs_struct.get('url')
         name = cls.get_filename(gtfs_struct)
         return url, name
+
+    @classmethod
+    def get_feed_id(cls, gtfs_struct):
+        name = cls.get_filename(gtfs_struct)
+        ret_val = name.strip('.gtfs.zip').strip('.zip')
+        return ret_val
 
 
 def convert():
