@@ -14,7 +14,7 @@ class Info(CacheBase):
     """ Get info on a gtfs.zip file:
          1. will unzip the two calendar plus the feed_info .txt files
          2. will read the calendar .txt files, and provide date ranges and the like
-         3. will calulate based on the calendar how old the feed is (and how many days it has left)
+         3. will calculate based on the calendar how old the feed is (and how many days it has left)
          4. will read the feed_info and pull out various date ranges and feed ids
     """
     gtfs_path = None
@@ -104,8 +104,8 @@ class Info(CacheBase):
         """ get feed details msg string for the .vlog file
         """
         f = self.get_feed_details(feed_name)
-        msg = "{}{} : date range {} to {} ({:>3} more calendar days), version {}{}"\
-            .format(prefix, f['name'], f['start'], f['end'], f['until'], f['version'], suffix)
+        msg = "{}{:<24} calendar range {} to {} | {:>5} days, version: {}{}" \
+            .format(prefix, f['name'] + ":", f['start'], f['end'], f['until'], f['version'], suffix)
         return msg
 
     def get_feed_info(self):
@@ -139,7 +139,7 @@ class Info(CacheBase):
                 else:
                     log.info("feed {} doesn't exist".format(gtfs_path))
         except Exception as e:
-            log.warn(e)
+            log.warning(e)
         return ret_val
 
     def unzip_calendar_txt(self, calendar_name='calendar.txt'):
@@ -282,7 +282,7 @@ class Info(CacheBase):
         return ret_val
 
     @classmethod
-    def cached_feeds_info(cls, print_path=False):
+    def cached_feeds_list(cls, print_path=False):
         ret_val = []
 
         # step 1: read the cache
@@ -301,9 +301,17 @@ class Info(CacheBase):
             url, name = cache.get_url_filename(f)
             cache_path = os.path.join(cache.cache_dir, name)
             i = Info(cache_path)
-            d = i.to_dict(name, url)
-            ret_val.append(d)
+            i.name = name
+            i.url = url
+            ret_val.append(i)
+        return ret_val
 
+    @classmethod
+    def cached_feeds_info(cls, print_path=False):
+        ret_val = []
+        for i in cls.cached_feeds_list(print_path):
+            d = i.to_dict(i.name, i.url)
+            ret_val.append(d)
         return ret_val
 
     @classmethod
@@ -316,9 +324,30 @@ class Info(CacheBase):
         return ret_val
 
     @classmethod
+    def cached_feeds_detail_info(cls, print_path=True, prefix="  "):
+        ret_val = ""
+        ilist = cls.cached_feeds_list(print_path)
+        for i in ilist:
+            n = i.get_feed_msg(i.name, prefix)
+            ret_val = ret_val + n
+        return ret_val
+
+    @classmethod
     def feed_looks_valid(cls, feed_path):
         info = Info(feed_path)
         return info.is_feed_valid()
+
+
+def cache_feeds_info():
+    import argparse
+    parser = argparse.ArgumentParser(description="Get cache feeds' info.")
+    parser.add_argument("--out", "-o", help="File path to print an gtfs.v file.")
+    args = parser.parse_args()
+    if args.out:
+        with open(args.out, "w") as f:
+            f.write(Info.cached_feeds_detail_info(False, ""))
+    else:
+        print(Info.cached_feeds_detail_info())
 
 
 def main():
@@ -329,10 +358,10 @@ def main():
         args = parser.parse_args()
         i = Info(args.path)
         print(i.to_dict())
-    except:
+    except Exception as e:
         parser.print_help()
-        print()
-        print(Info.cached_feeds_info_str())
+        print(e)
+        print(Info.cached_feeds_detail_info())
 
 
 if __name__ == '__main__':

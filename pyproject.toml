@@ -28,5 +28,5 @@ system-site-packages = true
 convert-fares  = "ott.gtfs_etl.cache:convert"
 
 gtfs-update = "ott.gtfs_etl.cache:main"
-gtfs-info = "ott.gtfs_etl.info:main"
+gtfs-info = "ott.gtfs_etl.info:cache_feeds_info"
 gtfs-patch = "ott.gtfs_etl.agency.patch:main"
