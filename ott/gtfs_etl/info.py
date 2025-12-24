@@ -2,6 +2,7 @@ import os
 import csv
 import datetime
 
+from ott.utils import date_utils
 from ott.utils import file_utils
 from ott.utils import object_utils
 from ott.utils.cache_base import CacheBase
@@ -345,6 +346,7 @@ def cache_feeds_info():
     args = parser.parse_args()
     if args.out:
         with open(args.out, "w") as f:
+            f.write("GTFS feeds checked on {}\n".format(date_utils.pretty_date_time()))
             f.write(Info.cached_feeds_detail_info(False, ""))
     else:
         print(Info.cached_feeds_detail_info())
