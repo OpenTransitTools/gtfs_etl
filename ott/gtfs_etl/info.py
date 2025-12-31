@@ -22,12 +22,11 @@ class Info(CacheBase):
     file_prefix = None
 
     def __init__(self, gtfs_path, file_prefix=''):
-        """ note: file_prefix allows us to have old_gtfs.zip and new_gtfs.zip names to compare against either other
-        """
+        """ note: file_prefix allows us to have old_gtfs.zip and new_gtfs.zip names to compare against either other """
         # import pdb; pdb.set_trace()
         super(Info, self).__init__(section='gtfs')
-
         self.gtfs_path = gtfs_path
+        self.gtfs_date = file_utils.file_pretty_date(self.gtfs_path, "%m.%d.%y")
         self.dir_path = os.path.dirname(gtfs_path)
         self.file_prefix = file_prefix
 
@@ -72,8 +71,7 @@ class Info(CacheBase):
         return ret_val
 
     def get_days_since_stats(self):
-        """ calculate the number of days since the gtfs was generated, and number of days left within the calendar
-        """
+        """ calculate the number of days since the gtfs was generated, and number of days left within the calendar """
         start_date,end_date=self.get_feed_date_range()
         sdate = datetime.datetime.strptime(start_date, '%Y%m%d')
         edate = datetime.datetime.strptime(end_date, '%Y%m%d')
@@ -87,8 +85,6 @@ class Info(CacheBase):
         return self._get_feed_date_range()
 
     def get_feed_details(self, feed_name):
-        """
-        """
         r = self.get_feed_date_range()
         v = self.get_feed_version()
         d = self.get_days_since_stats()
@@ -101,12 +97,13 @@ class Info(CacheBase):
         ret_val['until'] = d[1]
         return ret_val
 
-    def get_feed_msg(self, feed_name, prefix=" ", suffix="\n"):
-        """ get feed details msg string for the .vlog file
-        """
+    def get_feed_msg(self, feed_name, feed_date, prefix=" ", suffix="\n"):
+        """ get feed details msg string for the .vlog file """
+        #import pdb; pdb.set_trace()
         f = self.get_feed_details(feed_name)
-        msg = "{}{:<24} calendar range {} to {} | {:>5} days, version: {}{}" \
-            .format(prefix, f['name'] + ":", f['start'], f['end'], f['until'], f['version'], suffix)
+        nm = "{} ({}):".format(f['name'], feed_date)
+        msg = "{}{:<35} calendar range {} to {} | {:>5} days, version: {}{}" \
+            .format(prefix, nm, f['start'], f['end'], f['until'], f['version'], suffix)
         return msg
 
     def get_feed_info(self):
@@ -114,19 +111,17 @@ class Info(CacheBase):
 
     @classmethod
     def get_cache_msgs(cls, cache_dir, feeds, filter=None):
-        """ returns string .vlog messages based on all cached gtfs feeds
-        """
+        """ returns string .vlog messages based on all cached gtfs feeds """
         #import pdb; pdb.set_trace()
         ret_val = ""
         info = cls.get_cache_info_list(cache_dir, feeds, filter)
         for i in info:
-            ret_val = "{}{}".format(ret_val, i.get_feed_msg(i.name))
+            ret_val = "{}{}".format(ret_val, i.get_feed_msg(i.name, i.gtfs_date))
         return ret_val
 
     @classmethod
     def get_cache_info_list(cls, cache_dir, feeds, filter=None):
-        """ returns updated [] of Info objects, based on a directory of feeds
-        """
+        """ returns updated [] of Info objects, based on a directory of feeds """
         ret_val = []
         try:
             for f in feeds:
@@ -162,8 +157,7 @@ class Info(CacheBase):
         return file_utils.unzip_file(self.gtfs_path, file_name=trips_name)
 
     def _get_calendar_range(self):
-        """ get the date range from calendar.txt
-        """
+        """ get the date range from calendar.txt """
         start_date = None
         end_date = None
 
@@ -190,8 +184,7 @@ class Info(CacheBase):
         return start_date, end_date
 
     def _get_calendar_dates_range(self):
-        """ get the date range from calendar_dates.txt (as well as today's position, etc...)
-        """
+        """ get the date range from calendar_dates.txt (as well as today's position, etc...) """
         start_date = None
         end_date = None
         today = datetime.datetime.now().strftime("%Y%m%d")
@@ -227,8 +220,7 @@ class Info(CacheBase):
         return start_date, end_date, today_position, total_positions
 
     def _get_feed_info(self):
-        """ return feed version, start/end dates and id info from the feed_info.txt file...
-        """
+        """ return feed version, start/end dates and id info from the feed_info.txt file... """
         #import pdb; pdb.set_trace()
         version = '???'
         start_date = 'ZZZ'
@@ -249,8 +241,7 @@ class Info(CacheBase):
         return start_date, end_date, id, version
 
     def _get_feed_date_range(self):
-        """ date range of new gtfs file based on both calendar.txt and calendar_dates.txt
-        """
+        """ date range of new gtfs file based on both calendar.txt and calendar_dates.txt """
         # step 1: get dates from the two gtfs calendar files
         start_date, end_date, today_position, total_positions = self._get_calendar_dates_range()
         sdate, edate = self._get_calendar_range()
@@ -329,7 +320,7 @@ class Info(CacheBase):
         ret_val = ""
         ilist = cls.cached_feeds_list(print_path)
         for i in ilist:
-            n = i.get_feed_msg(i.name, prefix)
+            n = i.get_feed_msg(i.name, i.gtfs_date, prefix)
             ret_val = ret_val + n
         return ret_val
 
