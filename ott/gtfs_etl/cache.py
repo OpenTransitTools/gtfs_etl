@@ -36,6 +36,7 @@ class Cache(CacheBase):
         """
         updated_gtfs_names = []
         for f in self.feeds:
+            #import pdb; pdb.set_trace()
             update = self.check_feed(f, force_update)
             if update:
                 name = self.get_filename(f)
@@ -69,11 +70,11 @@ class Cache(CacheBase):
 
         # step 3: check the cache whether we should update or not
         update = force_update
-        if not force_update:
+        if not update and not force_update:
             if self.is_fresh_in_cache(file_path):
                 log.info("diff {} against cached {}".format(tmp_path, file_path))
                 diff = Diff(file_path, tmp_path)
-                if diff.is_different():
+                if diff.is_different(limit_testing=feed.get('dynamic', False)):
                     update = True
             else:
                 update = True

@@ -22,21 +22,29 @@ class Diff(CacheBase):
         self.old_info = Info(self.old_gtfs_zip, "old_")
         self.new_info = Info(self.new_gtfs_zip, "new_")
 
-    def is_different(self):
+    def is_different(self, limit_testing=False):
         """
         compare feed_info.txt and calendar_dates.txt between two zips
         """
-        #import pdb; pdb.set_trace()
+        stops_diff = feed_info_diff = calendar_diff = calendar_dates_diff = False
+
         stops_diff = file_utils.diff_files(self.old_info.unzip_stops(), self.new_info.unzip_stops())
         if stops_diff:
-            logging.info("{} stops.txt files ARE VERY different".format(self.new_gtfs_zip))
-        feed_info_diff = file_utils.diff_files(self.old_info.unzip_feed_info_txt(), self.new_info.unzip_feed_info_txt())
-        if feed_info_diff:
-            logging.info("{} feed_info.txt files ARE VERY different".format(self.new_gtfs_zip))
+            logging.info("{} stops.txt files ARE different".format(self.new_gtfs_zip))
         calendar_dates_diff = file_utils.diff_files(self.old_info.unzip_calendar_dates_txt(), self.new_info.unzip_calendar_dates_txt())
         if calendar_dates_diff:
-            logging.info("{} calender_dates.txt files ARE VERY different".format(self.new_gtfs_zip))
+            logging.info("{} calender_dates.txt files ARE different".format(self.new_gtfs_zip))
         calendar_diff = file_utils.diff_files(self.old_info.unzip_calendar_txt(), self.new_info.unzip_calendar_txt())
         if calendar_diff:
-            logging.info("{} calender.txt files ARE VERY different".format(self.new_gtfs_zip))
+            logging.info("{} calender.txt files ARE different".format(self.new_gtfs_zip))
+
+        # some feeds can't test things like feed_info.txt, as it's dynamic (e.g., always different)
+        if not limit_testing:
+            feed_info_diff = file_utils.diff_files(self.old_info.unzip_feed_info_txt(), self.new_info.unzip_feed_info_txt())
+            if feed_info_diff:
+                logging.info("{} feed_info.txt files ARE different".format(self.new_gtfs_zip))
+        else:
+            print(f"WARN: feed {self.old_gtfs_zip} has limited testing...")
+            #import pdb; pdb.set_trace()
+            pass
         return stops_diff or feed_info_diff or calendar_diff or calendar_dates_diff
