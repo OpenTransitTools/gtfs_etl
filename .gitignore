@@ -3,7 +3,7 @@ ott.openlayers.*
 otp_report.html
 build-config.json
 router-config.json
-gtfs/
+gtfs
 lucene
 bkup
 pid.txt
