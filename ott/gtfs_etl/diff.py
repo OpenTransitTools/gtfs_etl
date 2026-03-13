@@ -26,11 +26,14 @@ class Diff(CacheBase):
         """
         compare feed_info.txt and calendar_dates.txt between two zips
         """
-        stops_diff = feed_info_diff = calendar_diff = calendar_dates_diff = False
+        trips_diff = stops_diff = feed_info_diff = calendar_diff = calendar_dates_diff = False
 
         stops_diff = file_utils.diff_files(self.old_info.unzip_stops(), self.new_info.unzip_stops())
         if stops_diff:
             logging.info("{} stops.txt files ARE different".format(self.new_gtfs_zip))
+        trips_diff = file_utils.diff_files(self.old_info.unzip_trips(), self.new_info.unzip_trips())
+        if trips_diff:
+            logging.info("{} trips.txt files ARE different".format(self.new_gtfs_zip))
         calendar_dates_diff = file_utils.diff_files(self.old_info.unzip_calendar_dates_txt(), self.new_info.unzip_calendar_dates_txt())
         if calendar_dates_diff:
             logging.info("{} calender_dates.txt files ARE different".format(self.new_gtfs_zip))
@@ -47,4 +50,4 @@ class Diff(CacheBase):
             print(f"WARN: feed {self.old_gtfs_zip} has limited testing...")
             #import pdb; pdb.set_trace()
             pass
-        return stops_diff or feed_info_diff or calendar_diff or calendar_dates_diff
+        return stops_diff or trips_diff or feed_info_diff or calendar_diff or calendar_dates_diff
