@@ -28,6 +28,16 @@ class Cache(CacheBase):
     def __init__(self):
         super(Cache, self).__init__(section='gtfs')
         self.feeds = gtfs_utils.get_feeds_from_config(self.config)
+        if self.feeds is None:
+            #import pdb; pdb.set_trace()
+            self.feeds = []
+            print("\n", "*" * 50)
+            print("\n WARNING: self.feeds is None (not good)\n")
+            if self.config.found_ini:
+                print(f" Make sure the config file '{self.config.ini_file_path}' has the feeds section needed for this gtfsdb loader.")
+            else:
+                print(f" Can't find a config file on your PATH. Make sure you have a config file {self.config.ini} visible.")
+            print("\n", "*" * 50, "\n")
 
     def check_cached_feeds(self, force_update=False):
         """
