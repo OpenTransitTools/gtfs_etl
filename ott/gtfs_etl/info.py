@@ -331,6 +331,7 @@ class Info(CacheBase):
 
 
 def cache_feeds_info():
+    # TODO move the utils.cmdline
     import argparse
     parser = argparse.ArgumentParser(description="Get cache feeds' info.")
     parser.add_argument("--out", "-o", help="File path to print an gtfs.v file.")
@@ -344,6 +345,7 @@ def cache_feeds_info():
 
 
 def main():
+    # TODO move the utils.cmdline
     try:
         import argparse
         parser = argparse.ArgumentParser(description="Get a GTFS feed's info.")

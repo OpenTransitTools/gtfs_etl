@@ -1,6 +1,9 @@
 from __future__ import generators # needed for Python 2.2
 import sys
 
+# TODO update code, make availabe as a cmdline app, maybe move to utils.*, etc...
+
+
 def walktree(top = ".", depthfirst = True):
     """Walk the directory tree, starting from top. Credit to Noah Spurrier and Doug Fort."""
     import os, stat, types
@@ -18,6 +21,7 @@ def walktree(top = ".", depthfirst = True):
     if depthfirst:
         yield top, names
 
+
 def makeHTMLtable(top, depthfirst=False):
     from xml.sax.saxutils import escape # To quote out things like &amp;
     ret = ['<table class="fileList">\n']
@@ -27,6 +31,7 @@ def makeHTMLtable(top, depthfirst=False):
             ret.append('   <tr><td class="file">File: <a href="%s/%s">%s</a></td></tr>\n' %(escape(top), escape(name), escape(name)))
     ret.append('</table>')
     return ''.join(ret) # Much faster than += method
+
 
 def makeHTMLpage(top, depthfirst=False):
     return '\n'.join(['<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"',
@@ -46,6 +51,7 @@ def makeHTMLpage(top, depthfirst=False):
                       '</body>',
                       '</html>'])
                    
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         top = sys.argv[1]
