@@ -1,3 +1,4 @@
+import os
 import csv
 import zipfile
 from ott.utils import file_utils
@@ -19,12 +20,14 @@ def read_zip_file(zip_path, named_file=None, output_path=None):
     with zipfile.ZipFile(zip_path, 'r') as zf:
         ret_val = zf.namelist()
 
+        # find (optional) named_file in zip and return that data 
         if named_file:
             ret_val = None
             if named_file in zf.namelist():
                 # read a specific named_file's contents
                 with zf.open(named_file) as f:
                     ret_val = f.read().decode('utf-8')
+                    # optionally write named_file to a file
                     if ret_val and output_path:
                         # with file.open(output_path):
                         # TODO: write file
@@ -37,8 +40,11 @@ def gtfs_fare_category():
     args = gtfs_cmdline()
     zips = file_utils.find_files(args.path, ext="gtfs.zip")
     gtfs = ConfigUtil.factory(section="gtfs")
-    print(gtfs.get_list('feeds'))
-    print(gtfs.get_list('fare_categories'))
+    feeds = gtfs.get_json('feeds')
+    categories = gtfs.get_list('fare_categories')
+
     for z in zips:
         c = read_zip_file(z, "rider_categories.txt")
-        print(f"\n{z}:\n{c}\n\n")
+        f = os.path.basename(z)
+        u = next((i.get('url') for i in feeds if i.get("name") == f), None)
+        print(f"\n{f}: {u}\n{c}\n\n")
