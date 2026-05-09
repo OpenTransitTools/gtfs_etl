@@ -11,7 +11,7 @@ import logging
 log = logging.getLogger(__file__)
 
 
-def to_csv(data):
+def str_to_csv(data):
     """ turn a string (expected to be in .csv form, w/a header line) into a list of dicts """
     ret_val = []
     if data:
@@ -67,11 +67,12 @@ def feed_has_unexpected_categories(gtfs_feed_path, gtfs_rider_categories, known_
         if not rc:
             log.warning(f"{gtfs_feed_path} 'rider_categories.txt' is missing the 'rider_category_id' field.")
         else:
+            rc = rc.strip()
             if rc not in known_categories:
-                ret_val = f"{ret_val} {rc}"
+                ret_val = f"{rc},{ret_val}"
             else:
                 log.info(f"\n\t{rc:15} in {known_categories} = {gtfs_feed_path}")
-    ret_val.strip()
+    ret_val = ret_val.strip().strip(',')
     return ret_val
 
 
@@ -90,12 +91,12 @@ def gtfs_fare_category():
 
     for z in zips:
         c = read_zip_file(z, "rider_categories.txt")
-        v = to_csv(c)
+        v = str_to_csv(c)
         nc = feed_has_unexpected_categories(z, v, categories)
         if nc:
             f = os.path.basename(z)
             u = next((i.get('url') for i in feeds if i.get("name") == f), None)
-            print(f"\n{f}: {u}\n{nc}\n{c}\n")
+            print(f"ERROR: {f} ({u}) has UNKNOWN rider category(s): '{nc}'")
             ret_val += 1
 
     return ret_val
