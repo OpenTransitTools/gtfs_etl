@@ -69,7 +69,7 @@ def feed_has_unexpected_categories(gtfs_feed_path, gtfs_rider_categories, known_
         else:
             rc = rc.strip()
             if rc not in known_categories:
-                ret_val = f"{rc},{ret_val}"
+                ret_val = f"{rc}, {ret_val}"
             else:
                 log.info(f"\n\t{rc:15} in {known_categories} = {gtfs_feed_path}")
     ret_val = ret_val.strip().strip(',')
