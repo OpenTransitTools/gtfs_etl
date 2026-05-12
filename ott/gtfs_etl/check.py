@@ -89,14 +89,18 @@ def gtfs_fare_category():
     feeds = gtfs.get_json('feeds')
     categories = gtfs.get_list('fare_categories')
 
-    for z in zips:
-        c = read_zip_file(z, "rider_categories.txt")
-        v = str_to_csv(c)
-        nc = feed_has_unexpected_categories(z, v, categories)
-        if nc:
-            f = os.path.basename(z)
-            u = next((i.get('url') for i in feeds if i.get("name") == f), None)
-            print(f"ERROR: {f} ({u}) has UNKNOWN rider category(s): '{nc}'")
-            ret_val += 1
+    #import pdb; pdb.set_trace()
+    if categories is None or len(categories) < 1:
+        print(f"ERROR: {gtfs.ini_file_path} config lacks a 'gtfs.fare_categories: [ADULT,...]' element")
+    else:
+        for z in zips:
+            c = read_zip_file(z, "rider_categories.txt")
+            v = str_to_csv(c)
+            nc = feed_has_unexpected_categories(z, v, categories)
+            if nc:
+                f = os.path.basename(z)
+                u = next((i.get('url') for i in feeds if i.get("name") == f), None)
+                print(f"ERROR: {f} ({u}) has UNKNOWN rider category(s): '{nc}'")
+                ret_val += 1
 
     return ret_val
