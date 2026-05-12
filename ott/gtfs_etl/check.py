@@ -93,14 +93,19 @@ def gtfs_fare_category():
     if categories is None or len(categories) < 1:
         print(f"ERROR: {gtfs.ini_file_path} config lacks a 'gtfs.fare_categories: [ADULT,...]' element")
     else:
+        print("Checking fare rider categories:")
         for z in zips:
             c = read_zip_file(z, "rider_categories.txt")
             v = str_to_csv(c)
             nc = feed_has_unexpected_categories(z, v, categories)
             if nc:
+                print(f" **FAIL**: {z}", end="")
                 f = os.path.basename(z)
                 u = next((i.get('url') for i in feeds if i.get("name") == f), None)
-                print(f"ERROR: {f} ({u}) has UNKNOWN rider category(s): '{nc}'")
+                print(f" ({u}) has UNKNOWN rider category(s): '{nc}'")
                 ret_val += 1
+            else:
+                print(f" PASS: {z}")
+        print("done")
 
     return ret_val
