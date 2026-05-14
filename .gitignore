@@ -6,6 +6,7 @@ router-config.json
 gtfs
 lucene
 bkup
+fare_check.txt
 pid.txt
 log.txt
 out.txt
