@@ -62,44 +62,48 @@ class Cache(CacheBase):
         download feed from url, and check it against the cache
         if newer, then replace cached feed .zip file with new version
         """
-        # step 1: file name
-        url, file_name = self.get_url_filename(feed)
-        file_path = os.path.join(self.cache_dir, file_name)
+        try:
+            # step 1: file name
+            url, file_name = self.get_url_filename(feed)
+            file_path = os.path.join(self.cache_dir, file_name)
 
-        # step 2: download new gtfs file
-        tmp_path = os.path.join(self.tmp_dir, file_name)
+            # step 2: download new gtfs file
+            tmp_path = os.path.join(self.tmp_dir, file_name)
 
-        # step 2b: don't keep downloading a file ... make sure the tmp file is at least 2 hours
-        if force_update or not os.path.exists(tmp_path) or file_utils.file_age_seconds(tmp_path) > 7200:
-            #import pdb; pdb.set_trace()
-            web_utils.wget(url, tmp_path)
-            feed_id = self.get_feed_id(feed)
-            patch.fix_agency(tmp_path, feed_id)
-            if feed.get('faresV1'):
-                convert_fares(tmp_path, tmp_path)
+            # step 2b: don't keep downloading a file ... make sure the tmp file is at least 2 hours
+            if force_update or not os.path.exists(tmp_path) or file_utils.file_age_seconds(tmp_path) > 7200:
+                #import pdb; pdb.set_trace()
+                web_utils.wget(url, tmp_path)
+                feed_id = self.get_feed_id(feed)
+                patch.fix_agency(tmp_path, feed_id)
+                if feed.get('faresV1'):
+                    convert_fares(tmp_path, tmp_path)
 
-        # step 3: check the cache whether we should update or not
-        update = force_update
-        if not update and not force_update:
-            if self.is_fresh_in_cache(file_path):
-                log.info("diff {} against cached {}".format(tmp_path, file_path))
-                diff = Diff(file_path, tmp_path)
-                if diff.is_different(limit_testing=feed.get('dynamic', False)):
+            # step 3: check the cache whether we should update or not
+            update = force_update
+            if not update and not force_update:
+                if self.is_fresh_in_cache(file_path):
+                    log.info("diff {} against cached {}".format(tmp_path, file_path))
+                    diff = Diff(file_path, tmp_path)
+                    if diff.is_different(limit_testing=feed.get('dynamic', False)):
+                        update = True
+                else:
                     update = True
-            else:
-                update = True
 
-        # step 4: test new .zip for validity and also
-        if update:
-            # step 4a: make sure this new .zip feed has a trips.txt, routes.txt and stops.txt file ... if not no update
-            if Info.feed_looks_valid(tmp_path):
-                # step 4b: mv old file to backup then mv new file in tmp dir to cache
-                log.info("cp {} to cache {}".format(tmp_path, file_path))
-                file_utils.bkup(file_path)
-                file_utils.cp(tmp_path, file_path)
-            else:
-                log.warning("something *WRONG* with file: {}".format(tmp_path))
-                update = False
+            # step 4: test new .zip for validity and also
+            if update:
+                # step 4a: make sure this new .zip feed has a trips.txt, routes.txt and stops.txt file ... if not no update
+                if Info.feed_looks_valid(tmp_path):
+                    # step 4b: mv old file to backup then mv new file in tmp dir to cache
+                    log.info("cp {} to cache {}".format(tmp_path, file_path))
+                    file_utils.bkup(file_path)
+                    file_utils.cp(tmp_path, file_path)
+                else:
+                    log.warning("something *WRONG* with file: {}".format(tmp_path))
+                    update = False
+        except Exception as e:
+            print(f"***ERROR***: {e}")
+            update = False
 
         return update
 
