@@ -39,6 +39,16 @@ class Cache(CacheBase):
                 print(f" Can't find a config file on your PATH. Make sure you have a config file {self.config.ini} visible.")
             print("\n", "*" * 50, "\n")
 
+    def download_feeds(self):
+        """ simple routine to curl the feeds into the temp dir """
+        for feed in self.feeds:
+            # step 1: feed url and file name
+            url, file_name = self.get_url_filename(feed)
+
+            # step 2: download new gtfs file
+            tmp_path = os.path.join(self.tmp_dir, file_name)
+            web_utils.wget(url, tmp_path)
+
     def check_cached_feeds(self, force_update=False):
         """
         will check all feeds from an .ini file
@@ -209,6 +219,9 @@ def convert():
     args = parser.parse_args()
     convert.convert_fares(args.input_zip, args.output_zip)
 
+def download_feeds():
+    cache = Cache()
+    cache.download_feeds()
 
 def main():
     #import pdb; pdb.set_trace()
