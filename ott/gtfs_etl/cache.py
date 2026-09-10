@@ -112,7 +112,7 @@ class Cache(CacheBase):
                     log.warning("something *WRONG* with file: {}".format(tmp_path))
                     update = False
         except Exception as e:
-            print(f"***ERROR***: {e}")
+            print(f"***ERROR***: {file_name} - {e}\n{url}")
             update = False
 
         return update
